@@ -11,18 +11,23 @@ document.addEventListener("DOMContentLoaded", () => {
             pendingDeleteForm = form;
             pinInput.value = "";
             pinError.style.display = "none";
+            pinError.classList.add("hidden");
             modal.style.display = "flex";
-            pinInput.focus();
+            modal.classList.remove("hidden");
+            setTimeout(() => pinInput.focus(), 50);
         });
     });
 
     document.getElementById("pin-confirm").addEventListener("click", () => {
         if (pinInput.value.trim() === "6") {
             modal.style.display = "none";
-            pendingDeleteForm.removeEventListener("submit", () => {});
-            pendingDeleteForm.submit();
+            modal.classList.add("hidden");
+            if (pendingDeleteForm) {
+                pendingDeleteForm.submit();
+            }
         } else {
             pinError.style.display = "block";
+            pinError.classList.remove("hidden");
             pinInput.value = "";
             pinInput.focus();
         }
@@ -30,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("pin-cancel").addEventListener("click", () => {
         modal.style.display = "none";
+        modal.classList.add("hidden");
         pendingDeleteForm = null;
     });
 

@@ -1,6 +1,6 @@
+.venv
+__pycache__
 college_storage.db
 uploads/
-.venv/
-__pycache__/
 *.pyc
-.env
+.git

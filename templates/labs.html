@@ -14,35 +14,22 @@
     </div>
 </nav>
 
-<!-- Flash messages -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div class="mb-6 flex flex-col gap-2">
-            {% for category, message in messages %}
-                <div class="px-4 py-3 rounded-xl text-sm font-semibold
-                    {% if category == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endwith %}
 
-<!-- Hero -->
-<div class="bg-gradient-to-br from-purple-500 to-purple-700 rounded-2xl p-8 mb-8 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+<!-- Hero (Small) -->
+<div class="bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl px-6 py-4 mb-6 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
     <div>
-        <p class="text-purple-200 text-xs font-bold uppercase tracking-widest mb-1">🧪 Labs</p>
-        <h1 class="text-3xl font-extrabold mb-1">{{ selected_subject }}</h1>
-        <p class="text-purple-100 text-sm">{% if selected_category != 'All categories' %}{{ selected_category }}{% else %}All categories{% endif %}</p>
+        <p class="text-purple-200 text-[10px] font-bold uppercase tracking-widest mb-0.5">🧪 Labs</p>
+        <h1 class="text-xl font-bold mb-0.5">{{ selected_subject }}</h1>
+        <p class="text-purple-100 text-xs">{% if selected_category != 'All categories' %}{{ selected_category }}{% else %}All categories{% endif %}</p>
     </div>
-    <div class="flex gap-4">
-        <div class="bg-white/20 rounded-xl px-6 py-4 text-center min-w-[90px]">
-            <p class="text-3xl font-extrabold">{{ files|length }}</p>
-            <p class="text-purple-100 text-xs mt-1">Total files</p>
+    <div class="flex gap-2.5 shrink-0">
+        <div class="bg-white/20 rounded-lg px-4 py-2 text-center min-w-[75px]">
+            <p class="text-xl font-bold leading-tight">{{ files|length }}</p>
+            <p class="text-purple-100 text-[10px]">Total files</p>
         </div>
-        <div class="bg-white/20 rounded-xl px-6 py-4 text-center min-w-[90px]">
-            <p class="text-3xl font-extrabold">{{ subject_files|length }}</p>
-            <p class="text-purple-100 text-xs mt-1">In lab</p>
+        <div class="bg-white/20 rounded-lg px-4 py-2 text-center min-w-[75px]">
+            <p class="text-xl font-bold leading-tight">{{ subject_files|length }}</p>
+            <p class="text-purple-100 text-[10px]">In lab</p>
         </div>
     </div>
 </div>
@@ -53,7 +40,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
                 <label class="block text-xs font-bold uppercase tracking-widest text-slate-500 mb-1">Lab Subject</label>
-                <select name="subject" onchange="this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-purple-300">
+                <select name="subject" onchange="sessionStorage.setItem('scrollPos', window.scrollY); this.form.submit()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-purple-300">
                     {% for lab in lab_options %}
                         <option value="{{ lab }}" {% if lab == selected_subject %}selected{% endif %}>{{ lab }}</option>
                     {% endfor %}

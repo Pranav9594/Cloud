@@ -14,48 +14,28 @@
     </div>
 </nav>
 
-<!-- Flash messages -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div class="mb-6 flex flex-col gap-2">
-            {% for category, message in messages %}
-                <div class="px-4 py-3 rounded-xl text-sm font-semibold
-                    {% if category == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endwith %}
-
-<!-- Hero -->
-<div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-8 mb-8 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-    <div>
-        <p class="text-blue-200 text-xs font-bold uppercase tracking-widest mb-1">College Storage</p>
-        <h1 class="text-3xl font-extrabold mb-1">Upload Documents</h1>
-        <p class="text-blue-100 text-sm">Store your notes, papers & assignments in one place.</p>
-    </div>
-    <div class="bg-white/20 rounded-xl px-6 py-4 text-center min-w-[110px]">
-        <p class="text-3xl font-extrabold">{{ files|length }}</p>
-        <p class="text-blue-100 text-xs mt-1">Saved files</p>
-    </div>
-</div>
 
 <!-- Search by Subject -->
-<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
-    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3">Browse by Subject</p>
-    <div class="flex flex-wrap gap-2 mb-4">
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-8">
+    <p class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-3.5">Browse by Subject</p>
+    <div class="flex flex-wrap gap-2.5 mb-5">
         {% for subject in subject_options %}
-            <a href="{{ url_for('dashboard', subject=subject) }}" class="px-4 py-1.5 rounded-full text-xs font-bold border bg-slate-50 text-slate-600 border-slate-200 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition">{{ subject }}</a>
+            <a href="{{ url_for('dashboard', subject=subject) }}" class="group px-[18px] py-[9px] rounded-xl text-[13px] font-bold border bg-slate-50 text-slate-700 border-slate-200 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 cursor-pointer">
+                <span>{{ subject }}</span>
+                <span class="text-slate-400 group-hover:text-white group-hover:translate-x-0.5 transition-transform text-xs">→</span>
+            </a>
         {% endfor %}
         {% for lab in lab_options %}
-            <a href="{{ url_for('labs', subject=lab) }}" class="px-4 py-1.5 rounded-full text-xs font-bold border bg-purple-50 text-purple-600 border-purple-200 hover:bg-purple-500 hover:text-white hover:border-purple-500 transition">🧪 {{ lab }}</a>
+            <a href="{{ url_for('labs', subject=lab) }}" class="group px-[18px] py-[9px] rounded-xl text-[13px] font-bold border bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-500 hover:text-white hover:border-purple-500 transition-all duration-150 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 cursor-pointer">
+                <span>🧪 {{ lab }}</span>
+                <span class="text-purple-400 group-hover:text-white group-hover:translate-x-0.5 transition-transform text-xs">→</span>
+            </a>
         {% endfor %}
     </div>
     <form method="GET" action="{{ url_for('index') }}" class="flex gap-2">
         <input type="search" name="search" value="{{ search_term }}" placeholder="Search files by name..."
-            class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-300">
-        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold px-5 py-2 rounded-xl transition">Search</button>
+            class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-300">
+        <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition shadow-sm">Search</button>
     </form>
     {% if search_term and files %}
         <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -85,73 +65,106 @@
     {% endif %}
 </div>
 
-<!-- Upload Card -->
-<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-    <div class="flex items-center justify-between">
-        <div>
-            <p class="text-xs font-bold uppercase tracking-widest text-blue-500 mb-1">Upload files</p>
-            <h2 class="text-xl font-bold text-slate-800">Add a new document</h2>
-        </div>
-        <button type="button" id="toggle-upload" onclick="document.getElementById('upload-form-wrap').classList.toggle('hidden'); this.textContent = this.textContent.trim() === '+ Upload' ? '✕ Close' : '+ Upload'" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold px-5 py-2 rounded-full transition ml-4">+ Upload</button>
+<!-- Hero (Small) -->
+<div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-5 sm:p-6 mb-6 text-white flex flex-col gap-4 shadow-sm">
+    <div>
+        <p class="text-blue-200 text-[10px] font-bold uppercase tracking-widest mb-0.5">College Storage</p>
+        <h1 class="text-xl font-bold mb-0.5">Upload Documents</h1>
+        <p class="text-blue-100 text-xs">Store your notes, papers & assignments in one place.</p>
     </div>
 
-    <div id="upload-form-wrap" class="hidden mt-5">
-    <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1">File</label>
-            <input type="file" name="file" required accept=".pdf,.docx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.webp"
-                class="w-full text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 file:cursor-pointer">
+    <!-- Bottom Row of Card -->
+    <div class="flex items-center justify-between gap-3 pt-3 border-t border-white/15">
+        <div class="bg-white/20 rounded-lg px-3.5 py-1.5 text-center shrink-0 flex items-center gap-1.5">
+            <span class="text-base font-extrabold">{{ files|length }}</span>
+            <span class="text-blue-100 text-[10px] font-medium">Saved files</span>
+        </div>
+        <button type="button" onclick="openUploadModal()" class="bg-white text-blue-600 hover:bg-blue-50 text-xs font-bold px-4 py-2.5 rounded-lg transition shadow shrink-0 flex items-center gap-1.5">
+            <span class="text-sm font-black">+</span> Upload File
+        </button>
+    </div>
+</div>
+
+
+
+<!-- Upload Modal Popup -->
+<div id="upload-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-lg shadow-2xl border border-slate-100 relative">
+        <div class="flex items-center justify-between mb-5 border-b border-slate-100 pb-4">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-widest text-blue-500 mb-0.5">Upload document</p>
+                <h2 class="text-xl font-extrabold text-slate-800">Add New File</h2>
+            </div>
+            <button onclick="closeUploadModal()" type="button" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-bold flex items-center justify-center text-sm transition">✕</button>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <form action="{{ url_for('upload_file') }}" method="POST" enctype="multipart/form-data" class="flex flex-col gap-4">
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1">Semester</label>
-                <select name="semester" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-300">
-                    <option value="Semester 5" selected>Semester 5</option>
-                </select>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Choose File</label>
+                <input type="file" name="file" required accept=".pdf,.docx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.webp"
+                    class="w-full text-sm text-slate-600 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 file:cursor-pointer">
             </div>
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-1">Subject</label>
-                <select name="subject" required id="subject-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-300">
-                    <option value="">Select subject</option>
-                    {% for subject in subject_options %}
-                        <option value="{{ subject }}">{{ subject }}</option>
-                    {% endfor %}
-                    <optgroup label="Labs">
-                        {% for lab in lab_options %}
-                            <option value="{{ lab }}">{{ lab }}</option>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Semester</label>
+                    <select name="semester" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-300">
+                        <option value="Semester 5" selected>Semester 5</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Subject</label>
+                    <select name="subject" required id="subject-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-300">
+                        <option value="">Select subject</option>
+                        {% for subject in subject_options %}
+                            <option value="{{ subject }}">{{ subject }}</option>
                         {% endfor %}
+                        <optgroup label="Labs">
+                            {% for lab in lab_options %}
+                                <option value="{{ lab }}">{{ lab }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">Category</label>
+                <select name="category" required id="category-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-300">
+                    <option value="">Select a category</option>
+                    <optgroup label="Subjects" id="cat-subjects">
+                        <option value="Syllabus">Syllabus</option>
+                        <option value="Notes">Notes</option>
+                        <option value="Previous Papers">Previous Papers</option>
+                        <option value="Assignments">Assignments</option>
+                    </optgroup>
+                    <optgroup label="Labs" id="cat-labs">
+                        <option value="Syllabus">Syllabus</option>
+                        <option value="Code">Code</option>
+                        <option value="Output">Output</option>
                     </optgroup>
                 </select>
             </div>
-        </div>
 
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1">Category</label>
-            <select name="category" required id="category-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-300">
-                <option value="">Select a category</option>
-                <optgroup label="Subjects" id="cat-subjects">
-                    <option value="Syllabus">Syllabus</option>
-                    <option value="Notes">Notes</option>
-                    <option value="Previous Papers">Previous Papers</option>
-                    <option value="Assignments">Assignments</option>
-                </optgroup>
-                <optgroup label="Labs" id="cat-labs">
-                    <option value="Syllabus">Syllabus</option>
-                    <option value="Code">Code</option>
-                    <option value="Output">Output</option>
-                </optgroup>
-            </select>
-        </div>
-
-        <button type="submit" class="mt-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl transition text-sm">
-            Upload file
-        </button>
-    </form>
+            <div class="flex gap-3 mt-3 pt-2">
+                <button type="button" onclick="closeUploadModal()" class="flex-1 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-sm font-bold hover:bg-slate-100 transition">Cancel</button>
+                <button type="submit" class="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl transition text-sm shadow-md hover:shadow-lg">Upload file</button>
+            </div>
+        </form>
     </div>
 </div>
 
 <script>
+    const modal = document.getElementById('upload-modal');
+    function openUploadModal() {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex';
+    }
+    function closeUploadModal() {
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+    }
+
     const subjectSelect = document.getElementById('subject-select') || document.querySelector('select[name="subject"]');
     const catSubjects = document.getElementById('cat-subjects');
     const catLabs = document.getElementById('cat-labs');
@@ -162,6 +175,8 @@
         const isLab = labOptions.includes(subjectSelect.value);
         catSubjects.style.display = isLab ? 'none' : '';
         catLabs.style.display = isLab ? '' : 'none';
+        catSubjects.querySelectorAll('option').forEach(opt => opt.disabled = isLab);
+        catLabs.querySelectorAll('option').forEach(opt => opt.disabled = !isLab);
         categorySelect.value = '';
     }
 

@@ -34,22 +34,65 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
 
-<!-- Page Loader -->
-<div id="page-loader" style="display:none;position:fixed;inset:0;z-index:9998;backdrop-filter:blur(4px);background:rgba(255,255,255,0.4);"></div>
+<!-- Right Swipe Page Transition Overlay -->
+<div id="wipe-overlay" style="position:fixed;inset:0;z-index:9998;background:rgba(255, 255, 255, 0.75);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transform:translateX(-100%);pointer-events:none;will-change:transform;"></div>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const loader = document.getElementById('page-loader');
-        function showLoader() { loader.style.display = 'flex'; setTimeout(() => { loader.style.display = 'none'; }, 1500); }
+        const wipe = document.getElementById('wipe-overlay');
+
+        if (sessionStorage.getItem('wiping')) {
+            wipe.style.transform = 'translateX(0%)';
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    wipe.style.transition = 'transform 0.2s ease-out';
+                    wipe.style.transform = 'translateX(100%)';
+                    sessionStorage.removeItem('wiping');
+                });
+            });
+        }
+
+        function triggerWipe(url) {
+            sessionStorage.setItem('wiping', '1');
+            wipe.style.transition = 'transform 0.15s ease-in';
+            wipe.style.transform = 'translateX(0%)';
+            if (url) {
+                setTimeout(() => { window.location.href = url; }, 120);
+            }
+        }
+
+        // Restore scroll position if saved
+        const savedScroll = sessionStorage.getItem('scrollPos');
+        if (savedScroll !== null) {
+            window.scrollTo(0, parseInt(savedScroll, 10));
+            sessionStorage.removeItem('scrollPos');
+        }
+
         document.querySelectorAll('a[href]').forEach(a => {
-            if (!a.href.startsWith('mailto') && !a.target) a.addEventListener('click', showLoader);
+            if (!a.href.startsWith('mailto') && !a.href.startsWith('#') && !a.target && !a.href.includes('/download/') && !a.href.includes('/view/')) {
+                a.addEventListener('click', (e) => {
+                    const target = a.href;
+                    if (target && target !== window.location.href) {
+                        e.preventDefault();
+                        sessionStorage.setItem('scrollPos', window.scrollY.toString());
+                        triggerWipe(target);
+                    }
+                });
+            }
         });
-        document.querySelectorAll('form').forEach(f => f.addEventListener('submit', showLoader));
-        document.querySelectorAll('button[type="button"]').forEach(b => b.addEventListener('click', showLoader));
+
+        document.querySelectorAll('form').forEach(f => {
+            if (!f.matches('[data-confirm-delete="true"]')) {
+                f.addEventListener('submit', () => {
+                    sessionStorage.setItem('scrollPos', window.scrollY.toString());
+                    triggerWipe();
+                });
+            }
+        });
     });
 </script>
 
 <!-- Splash Screen -->
-<div id="splash" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#3B82F6,#2563EB);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity 0.5s ease;">
+<div id="splash" style="display:none;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#3B82F6,#2563EB);flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity 0.5s ease;">
     <div style="font-size:4rem;animation:bounce 0.8s infinite alternate;">📚</div>
     <p style="color:white;font-size:1.2rem;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;">College Storage</p>
     <div style="width:48px;height:4px;background:rgba(255,255,255,0.3);border-radius:999px;overflow:hidden;margin-top:8px;">
@@ -62,19 +105,58 @@
 </style>
 
 <script>
-    window.addEventListener('DOMContentLoaded', () => {
-        const splash = document.getElementById('splash');
-        const bar = document.getElementById('splash-bar');
-        if (sessionStorage.getItem('splashShown')) {
-            splash.style.display = 'none';
-        } else {
+    if (!sessionStorage.getItem('splashShown')) {
+        document.addEventListener('DOMContentLoaded', () => {
+            const splash = document.getElementById('splash');
+            const bar = document.getElementById('splash-bar');
+            splash.style.display = 'flex';
             sessionStorage.setItem('splashShown', '1');
-            setTimeout(() => bar.style.width = '100%', 100);
-            setTimeout(() => { splash.style.opacity = '0'; }, 1000);
-            setTimeout(() => { splash.style.display = 'none'; }, 1500);
-        }
-    });
+            setTimeout(() => bar.style.width = '100%', 50);
+            setTimeout(() => { splash.style.opacity = '0'; }, 400);
+            setTimeout(() => { splash.style.display = 'none'; }, 650);
+        });
+    }
 </script>
+<!-- Toast Popup Notifications -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-xs sm:max-w-sm pointer-events-none">
+            {% for category, message in messages %}
+                {% set is_success = (category == 'success') %}
+                {% set is_delete = (category == 'deleted' or 'deleted' in message.lower()) %}
+                <div class="toast-popup pointer-events-auto bg-white/95 backdrop-blur-md border {% if is_success %}border-green-200 text-slate-800 shadow-green-100{% else %}border-red-200 text-slate-800 shadow-red-100{% endif %} shadow-xl rounded-2xl p-4 flex items-center gap-3 transform -translate-y-4 opacity-0 transition-all duration-300 ease-out">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 {% if is_success %}bg-green-100 text-green-600{% else %}bg-red-100 text-red-600{% endif %} font-bold text-base">
+                        {% if is_success %}✓{% else %}✕{% endif %}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-bold uppercase tracking-wider {% if is_success %}text-green-600{% else %}text-red-600{% endif %}">
+                            {% if is_success %}Success{% elif is_delete %}Deleted{% else %}Error{% endif %}
+                        </p>
+                        <p class="text-xs sm:text-sm font-semibold text-slate-700 leading-snug mt-0.5">{{ message }}</p>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 text-xs font-bold p-1">✕</button>
+                </div>
+            {% endfor %}
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.toast-popup').forEach((toast, idx) => {
+                    setTimeout(() => {
+                        toast.classList.remove('-translate-y-4', 'opacity-0');
+                        toast.classList.add('translate-y-0', 'opacity-100');
+                    }, 100 + (idx * 150));
+
+                    setTimeout(() => {
+                        toast.classList.remove('translate-y-0', 'opacity-100');
+                        toast.classList.add('-translate-y-4', 'opacity-0');
+                        setTimeout(() => toast.remove(), 300);
+                    }, 4000 + (idx * 150));
+                });
+            });
+        </script>
+    {% endif %}
+{% endwith %}
+
     <div class="max-w-5xl mx-auto px-4 py-8">
         {% block content %}{% endblock %}
     </div>
