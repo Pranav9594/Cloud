@@ -37,14 +37,26 @@
             class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-300">
         <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold px-6 py-2.5 rounded-xl transition shadow-sm">Search</button>
     </form>
-    {% if search_term and files %}
-        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+</div>
+
+<!-- All Uploaded Documents Section -->
+<div class="mb-8">
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <p class="text-xs font-bold uppercase tracking-widest text-blue-500 mb-0.5">Documents Cloud</p>
+            <h2 class="text-xl font-bold text-slate-800">{% if search_term %}Search Results for "{{ search_term }}"{% else %}All Uploaded Files{% endif %}</h2>
+        </div>
+        <span class="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full border border-blue-100">{{ files|length }} Available</span>
+    </div>
+
+    {% if files %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {% for file in files %}
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-3">
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col gap-3 hover:shadow-md transition">
                     <div class="flex items-start gap-3">
                         <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-lg shrink-0">{{ file.icon }}</div>
                         <div class="min-w-0">
-                            <p class="text-sm font-semibold text-slate-800 truncate">{{ file.original_name }}</p>
+                            <p class="text-sm font-bold text-slate-800 truncate" title="{{ file.original_name }}">{{ file.original_name }}</p>
                             <p class="text-xs text-slate-400 mt-0.5">{{ file.pretty_size }} · {{ file.display_date }}</p>
                         </div>
                     </div>
@@ -53,15 +65,19 @@
                         <span class="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full font-medium">{{ file.subject }}</span>
                         <span class="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-1 rounded-full font-medium">{{ file.category }}</span>
                     </div>
-                    <div class="flex gap-2 mt-auto">
-                        <a href="{{ url_for('view_file', file_id=file.id) }}" class="flex-1 text-center text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 rounded-lg transition">View</a>
-                        <a href="{{ url_for('download_file', file_id=file.id) }}" class="flex-1 text-center text-xs font-semibold bg-blue-500 hover:bg-blue-600 text-white py-1.5 rounded-lg transition">Download</a>
+                    <div class="flex gap-2 mt-auto pt-2 border-t border-slate-100">
+                        <a href="{{ url_for('view_file', file_id=file.id) }}" target="_blank" class="flex-1 text-center text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-xl transition">👁️ View</a>
+                        <a href="{{ url_for('download_file', file_id=file.id) }}" class="flex-1 text-center text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-xl transition shadow-sm">📥 Download</a>
                     </div>
                 </div>
             {% endfor %}
         </div>
-    {% elif search_term %}
-        <p class="mt-4 text-sm text-slate-400">No files found for "{{ search_term }}".</p>
+    {% else %}
+        <div class="bg-white rounded-2xl border border-slate-100 p-8 text-center">
+            <p class="text-3xl mb-2">📁</p>
+            <p class="text-sm font-semibold text-slate-700">No documents found.</p>
+            <p class="text-xs text-slate-400 mt-1">Upload a document using the "+ Upload File" button above.</p>
+        </div>
     {% endif %}
 </div>
 
