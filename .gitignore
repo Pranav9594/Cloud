@@ -1,0 +1,5 @@
+college_storage.db
+uploads/
+.venv/
+__pycache__/
+*.pyc

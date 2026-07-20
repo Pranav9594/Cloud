@@ -1,0 +1,15 @@
+/* Tailwind CDN handles all styles. Custom overrides only below. */
+
+input[type="file"]::file-selector-button {
+    margin-right: 12px;
+    padding: 8px 14px;
+    border: 1px solid #3B82F6;
+    border-radius: 8px;
+    color: white;
+    background: #3B82F6;
+    cursor: pointer;
+}
+
+input[type="file"]::file-selector-button:hover {
+    background: #2563EB;
+}
