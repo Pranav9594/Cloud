@@ -15,8 +15,19 @@ except ImportError:
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
 SUPABASE_BUCKET = "uploads"
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+IS_VERCEL = os.environ.get("VERCEL") == "1" or "VERCEL_ENV" in os.environ
+
+if IS_VERCEL:
+    UPLOAD_FOLDER = "/tmp/uploads"
+    DB_PATH = "/tmp/college_storage.db"
+else:
+    UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+    DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "college_storage.db")
+
+try:
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+except Exception as e:
+    print(f"Warning: Could not create upload folder {UPLOAD_FOLDER}: {e}")
 
 USE_SUPABASE = False
 supabase = None
@@ -39,7 +50,6 @@ LAB_CATEGORY_OPTIONS = ["Syllabus", "Code", "Output"]
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 30 * 1024 * 1024
 app.secret_key = "college-storage-secret-key"
-DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "college_storage.db")
 
 
 def get_sqlite_db():
@@ -49,22 +59,25 @@ def get_sqlite_db():
 
 
 def init_sqlite_db():
-    conn = get_sqlite_db()
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS files (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            original_name TEXT NOT NULL,
-            stored_name TEXT NOT NULL,
-            file_size INTEGER NOT NULL,
-            upload_date TEXT NOT NULL,
-            semester TEXT NOT NULL,
-            subject TEXT NOT NULL,
-            category TEXT NOT NULL,
-            file_extension TEXT NOT NULL
-        )
-    """)
-    conn.commit()
-    conn.close()
+    try:
+        conn = get_sqlite_db()
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS files (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                original_name TEXT NOT NULL,
+                stored_name TEXT NOT NULL,
+                file_size INTEGER NOT NULL,
+                upload_date TEXT NOT NULL,
+                semester TEXT NOT NULL,
+                subject TEXT NOT NULL,
+                category TEXT NOT NULL,
+                file_extension TEXT NOT NULL
+            )
+        """)
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Warning: SQLite init skipped or failed: {e}")
 
 
 if not USE_SUPABASE:
