@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>College Storage</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -19,6 +20,7 @@
         }
     </script>
     <style>
+        html, body { background-color: #f8fafc; color: #1e293b; }
         input[type="file"]::file-selector-button {
             margin-right: 12px; padding: 8px 14px;
             border: 1px solid #3B82F6; border-radius: 8px;
@@ -35,88 +37,14 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
 
-<!-- Right Swipe Page Transition Overlay -->
-<div id="wipe-overlay" style="position:fixed;inset:0;z-index:9998;background:rgba(255, 255, 255, 0.75);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transform:translateX(-100%);pointer-events:none;will-change:transform;"></div>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        const wipe = document.getElementById('wipe-overlay');
-
-        if (sessionStorage.getItem('wiping')) {
-            wipe.style.transform = 'translateX(0%)';
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    wipe.style.transition = 'transform 0.2s ease-out';
-                    wipe.style.transform = 'translateX(100%)';
-                    sessionStorage.removeItem('wiping');
-                });
-            });
-        }
-
-        function triggerWipe(url) {
-            sessionStorage.setItem('wiping', '1');
-            wipe.style.transition = 'transform 0.15s ease-in';
-            wipe.style.transform = 'translateX(0%)';
-            if (url) {
-                setTimeout(() => { window.location.href = url; }, 120);
-            }
-        }
-
-        // Restore scroll position if saved
         const savedScroll = sessionStorage.getItem('scrollPos');
         if (savedScroll !== null) {
             window.scrollTo(0, parseInt(savedScroll, 10));
             sessionStorage.removeItem('scrollPos');
         }
-
-        document.querySelectorAll('a[href]').forEach(a => {
-            if (!a.href.startsWith('mailto') && !a.href.startsWith('#') && !a.target && !a.href.includes('/download/') && !a.href.includes('/view/')) {
-                a.addEventListener('click', (e) => {
-                    const target = a.href;
-                    if (target && target !== window.location.href) {
-                        e.preventDefault();
-                        sessionStorage.setItem('scrollPos', window.scrollY.toString());
-                        triggerWipe(target);
-                    }
-                });
-            }
-        });
-
-        document.querySelectorAll('form').forEach(f => {
-            if (!f.matches('[data-confirm-delete="true"]')) {
-                f.addEventListener('submit', () => {
-                    sessionStorage.setItem('scrollPos', window.scrollY.toString());
-                    triggerWipe();
-                });
-            }
-        });
     });
-</script>
-
-<!-- Splash Screen -->
-<div id="splash" style="display:none;position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#3B82F6,#2563EB);flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity 0.5s ease;">
-    <div style="font-size:4rem;animation:bounce 0.8s infinite alternate;">📚</div>
-    <p style="color:white;font-size:1.2rem;font-weight:800;letter-spacing:0.15em;text-transform:uppercase;">College Storage</p>
-    <div style="width:48px;height:4px;background:rgba(255,255,255,0.3);border-radius:999px;overflow:hidden;margin-top:8px;">
-        <div id="splash-bar" style="height:100%;width:0%;background:white;border-radius:999px;transition:width 0.8s ease;"></div>
-    </div>
-</div>
-
-<style>
-    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
-</style>
-
-<script>
-    if (!sessionStorage.getItem('splashShown')) {
-        document.addEventListener('DOMContentLoaded', () => {
-            const splash = document.getElementById('splash');
-            const bar = document.getElementById('splash-bar');
-            splash.style.display = 'flex';
-            sessionStorage.setItem('splashShown', '1');
-            setTimeout(() => bar.style.width = '100%', 50);
-            setTimeout(() => { splash.style.opacity = '0'; }, 400);
-            setTimeout(() => { splash.style.display = 'none'; }, 650);
-        });
-    }
 </script>
 <!-- Toast Popup Notifications -->
 {% with messages = get_flashed_messages(with_categories=true) %}
