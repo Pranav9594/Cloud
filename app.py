@@ -12,8 +12,8 @@ try:
 except ImportError:
     pass
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+SUPABASE_URL = (os.environ.get("SUPABASE_URL") or "").strip().strip('"').strip("'")
+SUPABASE_KEY = (os.environ.get("SUPABASE_KEY") or "").strip().strip('"').strip("'")
 SUPABASE_BUCKET = "uploads"
 IS_VERCEL = os.environ.get("VERCEL") == "1" or "VERCEL_ENV" in os.environ
 
@@ -31,6 +31,7 @@ except Exception as e:
 
 USE_SUPABASE = False
 supabase = None
+SUPABASE_INIT_ERROR = None
 
 if SUPABASE_URL and SUPABASE_KEY:
     try:
@@ -38,6 +39,7 @@ if SUPABASE_URL and SUPABASE_KEY:
         supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
         USE_SUPABASE = True
     except Exception as e:
+        SUPABASE_INIT_ERROR = str(e)
         print(f"Supabase init error: {e}. Falling back to local SQLite.")
         USE_SUPABASE = False
 
@@ -359,6 +361,7 @@ def health_check():
         "use_supabase": USE_SUPABASE,
         "supabase_url_set": bool(SUPABASE_URL),
         "supabase_key_set": bool(SUPABASE_KEY),
+        "supabase_init_error": SUPABASE_INIT_ERROR,
         "is_vercel": IS_VERCEL,
         "storage": "Supabase Cloud" if USE_SUPABASE else "Local SQLite (/tmp)"
     }
