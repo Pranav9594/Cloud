@@ -39,14 +39,15 @@
     </form>
 </div>
 
-<!-- All Uploaded Documents Section -->
+{% if search_term %}
+<!-- Search Results Section -->
 <div class="mb-8">
     <div class="flex items-center justify-between mb-4">
         <div>
             <p class="text-xs font-bold uppercase tracking-widest text-blue-500 mb-0.5">Documents Cloud</p>
-            <h2 class="text-xl font-bold text-slate-800">{% if search_term %}Search Results for "{{ search_term }}"{% else %}All Uploaded Files{% endif %}</h2>
+            <h2 class="text-xl font-bold text-slate-800">Search Results for "{{ search_term }}"</h2>
         </div>
-        <span class="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full border border-blue-100">{{ files|length }} Available</span>
+        <span class="text-xs font-bold bg-blue-50 text-blue-600 px-3 py-1.5 rounded-full border border-blue-100">{{ files|length }} Found</span>
     </div>
 
     {% if files %}
@@ -75,11 +76,11 @@
     {% else %}
         <div class="bg-white rounded-2xl border border-slate-100 p-8 text-center">
             <p class="text-3xl mb-2">📁</p>
-            <p class="text-sm font-semibold text-slate-700">No documents found.</p>
-            <p class="text-xs text-slate-400 mt-1">Upload a document using the "+ Upload File" button above.</p>
+            <p class="text-sm font-semibold text-slate-700">No documents found matching "{{ search_term }}".</p>
         </div>
     {% endif %}
 </div>
+{% endif %}
 
 <!-- Hero (Small) -->
 <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl p-5 sm:p-6 mb-6 text-white flex flex-col gap-4 shadow-sm">
