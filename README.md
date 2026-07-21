@@ -1,5 +1,5 @@
 # College Storage
-### By Om
+### By Sai
 
 A clean and responsive college file storage app built with Flask, SQLite, HTML, CSS, and JavaScript.
 
