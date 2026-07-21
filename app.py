@@ -312,7 +312,6 @@ def view_file(file_id):
             flash("File not found.", "error")
             return redirect(url_for("index"))
         file_url = supabase.storage.from_(SUPABASE_BUCKET).get_public_url(row["stored_name"])
-        return redirect(file_url)
     else:
         conn = get_sqlite_db()
         row = conn.execute("SELECT * FROM files WHERE id = ?", (file_id,)).fetchone()
@@ -320,7 +319,23 @@ def view_file(file_id):
         if not row:
             flash("File not found.", "error")
             return redirect(url_for("index"))
-        return send_from_directory(UPLOAD_FOLDER, row["stored_name"])
+        file_url = url_for("serve_local_file", filename=row["stored_name"])
+
+    ext = (row.get("file_extension") or "").lower().lstrip(".")
+    is_image = ext in ("png", "jpg", "jpeg", "gif", "webp")
+    return render_template(
+        "viewer.html",
+        file=row,
+        file_url=file_url,
+        is_image=is_image,
+        download_url=url_for("download_file", file_id=file_id),
+    )
+
+
+@app.route("/local_file/<filename>")
+def serve_local_file(filename):
+    """Serve local uploaded files inline (not as attachment)."""
+    return send_from_directory(UPLOAD_FOLDER, filename)
 
 
 @app.route("/delete/<int:file_id>", methods=["POST"])

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Top Bar -->
+<div class="flex items-center justify-between mb-4">
+    <a href="{{ url_for('index') }}" class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-blue-500 transition">
+        <span>←</span> Back to Files
+    </a>
+    <a href="{{ download_url }}" class="bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5">
+        📥 Download
+    </a>
+</div>
+
+<!-- File Info Card -->
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-4">
+    <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-lg shrink-0">📄</div>
+        <div class="min-w-0 flex-1">
+            <p class="text-sm font-bold text-slate-800 truncate">{{ file.original_name }}</p>
+            <div class="flex flex-wrap gap-1.5 mt-1.5">
+                <span class="text-xs bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-full font-medium">{{ file.semester }}</span>
+                <span class="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full font-medium">{{ file.subject }}</span>
+                <span class="text-xs bg-slate-100 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full font-medium">{{ file.category }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- File Viewer Container -->
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden" style="min-height: 75vh;">
+    {% if is_image %}
+        <!-- Image Viewer -->
+        <div class="flex items-center justify-center p-4 bg-slate-50" style="min-height: 75vh;">
+            <img src="{{ file_url }}" alt="{{ file.original_name }}" 
+                 class="max-w-full max-h-[80vh] rounded-xl shadow-md object-contain">
+        </div>
+    {% else %}
+        <!-- In-Browser PDF / Document Viewer (Google Docs Viewer for 100% Mobile Compatibility) -->
+        <iframe 
+            src="https://docs.google.com/gview?embedded=true&url={{ file_url | urlencode }}" 
+            class="w-full border-0" 
+            style="height: 80vh; min-height: 550px;"
+            allow="autoplay"
+            title="{{ file.original_name }}">
+        </iframe>
+
+        <!-- Fallback if iframe is blocked -->
+        <div class="p-4 bg-slate-50 border-t border-slate-100 text-center">
+            <p class="text-xs text-slate-400 mb-2">If the document preview doesn't load above:</p>
+            <a href="{{ file_url }}" target="_blank" rel="noopener" 
+               class="inline-block bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm">
+                Open Direct Link →
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
