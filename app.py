@@ -248,7 +248,7 @@ def upload_file():
         try:
             supabase.storage.from_(SUPABASE_BUCKET).upload(
                 stored_name, file_bytes,
-                file_options={"content-type": uploaded_file.content_type}
+                file_options={"content-type": uploaded_file.content_type or "application/octet-stream", "upsert": "true"}
             )
             supabase.table("files").insert({
                 "original_name": original_name,
@@ -352,10 +352,16 @@ def delete_file(file_id):
     return redirect(next_url if next_url.startswith("/") else url_for("dashboard"))
 
 
-@app.errorhandler(413)
-def request_entity_too_large(error):
-    flash("File is too large! Maximum allowed size is 30 MB.", "error")
-    return redirect(url_for("index"))
+@app.route("/health")
+def health_check():
+    return {
+        "status": "ok",
+        "use_supabase": USE_SUPABASE,
+        "supabase_url_set": bool(SUPABASE_URL),
+        "supabase_key_set": bool(SUPABASE_KEY),
+        "is_vercel": IS_VERCEL,
+        "storage": "Supabase Cloud" if USE_SUPABASE else "Local SQLite (/tmp)"
+    }
 
 
 if __name__ == "__main__":
