@@ -51,4 +51,4 @@ python app.py
 
 - Uploaded files are stored in the `uploads/` folder.
 - The database is created automatically with a `files` table on startup.
-- You can safely delete the database file to reset the app.
+- You can safely delete the database file to reset the app...
